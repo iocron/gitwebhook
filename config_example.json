@@ -1,0 +1,10 @@
+{
+	"gitwebhook": {
+		"git_repository":"git@github.com:<username>/<repository>",
+		"git_branch":"master",
+		"git_secret":"XXXXXXXX",
+		"deployDir":"/var/www/example.com/httpdocs",
+		"mail":"mail@example.com",
+		"mailSubject":"Gitwebhook - "
+	}
+}
