@@ -23,5 +23,8 @@ Thumbs.db
 # IDE Specific Files
 .ftpconfig
 
+# Exclude .htaccess
+.htaccess
+
 # Never exclude .gitkeep files
 !.gitkeep
