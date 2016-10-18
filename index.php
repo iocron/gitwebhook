@@ -1,6 +1,6 @@
 <?php
     // Requirements / Includes
-    require_once(__DIR__."/classes/gitwebhook.php");
+    require_once(__DIR__."/lib/gitwebhook.php");
     
     // Namespaces
     use Gitdeployer\Githubwebhook;

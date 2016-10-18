@@ -59,7 +59,7 @@ class Githubwebhook
         }
 
         // Setup Git Pull / Clone Commands
-        passthru("./lib/is_dir.sh '{$this->gitDir}/.git'",$is_dir);
+        passthru("./scripts/is_dir.sh '{$this->gitDir}/.git'",$is_dir);
         if($is_dir=="1"){
           $execCommand = "cd {$this->gitDir} && git checkout {$this->branch} && git pull -f 2>&1";
           $tmpMailSubject = "Successful: Git pull executed";
@@ -68,8 +68,10 @@ class Githubwebhook
           $tmpMailSubject = "Successful: Git clone executed";
         }
         
-        // Execute Git Pull / Clone Commands + Git Report Generation
-        exec($execCommand,$this->gitOutput);  // exec("git --work-tree={$this->gitDir} pull -f {$this->repository}", $this->gitOutput);
+        // Execute Git Pull / Clone Commands
+        exec($execCommand,$this->gitOutput);
+        
+        // Generate Git Report
         $gitReport = $this->gitOutput;
         if(is_array($this->gitOutput)){
             $gitReport = "";
@@ -78,7 +80,7 @@ class Githubwebhook
             }
         }
         
-        // Send Notification about the Git Deployment
+        // Send Notification about the Git Deployment (Git Report)
         $this->notification($tmpMailSubject,"gitCommand:{$eol}{$execCommand}{$eol}{$eol}gitOutput:{$eol}{$gitReport}{$eol}Server Output:{$eol}".print_r($_SERVER,true));
 
         return true;
