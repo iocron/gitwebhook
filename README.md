@@ -38,7 +38,7 @@ Use the following steps to set up a new gitwebhook on your github (or bitbucket)
 3. Copy configuration file and htaccess so you can use them:
 
    ```
-   cp config_example.json config.json && cp .htaccess_example .htaccess && chmod 600 config.json
+   cp config_example.json config.json && cp .htaccess_example .htaccess && chmod 600 config.json && chmod 700 scripts/*.sh
    ```
 
    *(Note: If you are a bitbucket user, then edit the .htaccess and uncomment the Bitbucket User Block for better security)*
