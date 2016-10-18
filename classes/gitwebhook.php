@@ -85,14 +85,19 @@ class Githubwebhook
 
     public function validate(){
       // Bitbucket Payload Validation (simple)
-      if(isset($_REQUEST['HTTP_X_HOOK_UUID'])){
+      if(isset($_REQUEST['bitbucket_secret'])){
         $payload = json_decode(file_get_contents('php://input'));
         
-        if(empty($payload)){
+        if($_REQUEST["bitbucket_secret"] != $this->secret){
+          $this->notification("Error: Not compliant secrets","Please make sure the secret key is equal on both sides (Your Server & Bitbucket).");
           return false;
         }
-        
+        if(empty($payload)){
+          $this->notification("Error: Payload is empty.","Something went really wrong about your payload (empty).\nPayload Data:".$payload);
+          return false;
+        }
         if(!isset($payload->repository->name, $payload->push->changes)){
+          $this->notification("Error: Invalid Payload Data received.","Your payload data isn't valid.\nPayload Data:".$payload);
           return false;
         }
         
