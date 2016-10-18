@@ -27,18 +27,23 @@ Use the following steps to set up a new gitwebhook on your github (or bitbucket)
    ```
    cd <yourWebsiteFolder>
    ``` 
+   
    *(e.g. /var/www/example.com/httpdocs/)*
 2. Clone the gitwebhook
+
    ```
    git clone https://github.com/iocron/gitwebhook.git && cd gitwebhook
    ```
+   
 3. Copy configuration file and htaccess so you can use them:
+
    ```
    cp config_example.json config.json && cp .htaccess_example .htaccess && chmod 600 config.json
    ```
 
    *(Note: If you are a bitbucket user, then edit the .htaccess and uncomment the Bitbucket User Block for better security)*
 4. Fill out the config.json Settings (see options at the bottom):
+
    ```
    vim config.json
    ``` 
@@ -62,14 +67,17 @@ Use the following steps to set up a new gitwebhook on your github (or bitbucket)
 ### Setup a Host Key on your Server & Test the Connection (Fourth Step)
 
 1. Add the Github & Bitbucket Host Key to your Known Hosts (if not already done): 
+
    ```
    ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts && ssh-keyscan -t rsa bitbucket.org >> ~/.ssh/known_hosts
    ```
    
    *Note: In the case of using a different user / domain user, then use the following example (adjust the paths to your needs):*
+   
    ```
    ssh-keyscan -t rsa github.com >> /var/www/example.com/.ssh/known_hosts && ssh-keyscan -t rsa bitbucket >> /var/www/example.com/.ssh/known_hosts && chmod 600 /var/www/example.com/.ssh/known_hosts
    ```
+   
 2. Make a test connection: 
 
    ```
@@ -83,6 +91,7 @@ Use the following steps to set up a new gitwebhook on your github (or bitbucket)
    ```
    
    *(Note: In the case of using a different user / domain user, test with: `su -p -c "ssh -Tv git@github.com" <username>` instead)*
+   
 3. Make a test commit to your Github / Bitbucket Repo and see if the code on your server has changed as well, have fun.
 
 *Tips:*
