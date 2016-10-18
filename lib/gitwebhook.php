@@ -54,7 +54,7 @@ class Githubwebhook
         
         // Validation Check
         if (!$this->validate()) {
-            $this->notification("Error: Git handle validation check failed",$this->secret."Server Output:{$eol}".print_r($_SERVER,true));
+            $this->notification("Error: Git handle validation check failed","Server Output:{$eol}".print_r($_SERVER,true));
             return false;
         }
 
