@@ -54,7 +54,7 @@ class Githubwebhook
         
         // Validation Check
         if (!$this->validate()) {
-            $this->notification("Error: Git handle validation check failed","Server Output:{$eol}".print_r($_SERVER,true));
+            $this->notification("Error: Git handle validation check failed",$this->secret."Server Output:{$eol}".print_r($_SERVER,true));
             return false;
         }
 
@@ -85,12 +85,18 @@ class Githubwebhook
 
     public function validate(){
       // Bitbucket Payload Validation (simple)
-      if(isset($_REQUEST["bitbucket_secret"])){
-        if($_REQUEST['bitbucket_secret'] == $this->secret && isset($_REQUEST['HTTP_X_HOOK_UUID'])){
-          return true;
-        } else {
+      if(isset($_REQUEST['HTTP_X_HOOK_UUID'])){
+        $payload = json_decode(file_get_contents('php://input'));
+        
+        if(empty($payload)){
           return false;
         }
+        
+        if(!isset($payload->repository->name, $payload->push->changes)){
+          return false;
+        }
+        
+        return true;
       }
       
       // Github Payload Validation
