@@ -2,10 +2,10 @@
 
 ## Overview & Usage
 
-This script automates the pushes from github so they can be directly provisioned (pulled / cloned) to the right server.
+This script automates the pushes from github (or bitbucket) so they can be directly provisioned (pulled / cloned) to the right server and location.
 
 Use the following steps to set up a new gitwebhook on your github (or bitbucket) account & server:
-(note: be sure that a deploy key on your server is set as well. More informations about the whole process of deploy keys: [Setup a deploy key for your server](https://developer.github.com/guides/managing-deploy-keys/#setup-2))
+(Note: Be sure that a deploy key on your server is set as well, you can validate it by running `ssh -Tv git@github.com` or for bitbucket users `ssh -Tv git@bitbucket.org`. More informations about the whole process of deploy keys: [Github - Setup deploy key](https://developer.github.com/guides/managing-deploy-keys/#setup-2) or [Bitbucket - Setup deploy key](https://confluence.atlassian.com/bitbucket/use-deployment-keys-294486051.html))
 
 ### On Github (First Step):
 
@@ -19,7 +19,7 @@ Use the following steps to set up a new gitwebhook on your github (or bitbucket)
 1. Go to your Repository and click on "Settings", then click on "Webhooks"
 2. Click on "Add webhook"
 3. Use the following url: https://\<yourwebsite\>/gitwebhook/index.php?bitbucket_secret=\<secret\> 
-   
+
    (replace \<secret\> with a Secret of your choice)
 
 ### On your Server (Second Step):
@@ -42,10 +42,12 @@ Use the following steps to set up a new gitwebhook on your github (or bitbucket)
    "mailSubject":"Gitwebhook - "
 6. Make a test commit to your Github / Bitbucket Repo and see if the code on your server has changed as well, have fun.
 
-(If you are a bitbucket user, then edit the .htaccess and uncomment the Bitbucket User Block)
+Note - If you are a bitbucket user: 
+  - then edit the .htaccess and uncomment the Bitbucket User Block for better security (important!)
+  - use `ssh -Tv git@bitbucket.org` additionally and check if a valid connection can be established before you try a test commit (and accept the RSA key fingerprint as well if asked)
 
-*Additional Notes:*
-*You can use the gitwebhook on a different domain (e.g. Subdomain) and deploy to a different location on your server. The gitwebhook module supports only a single git repository at the moment (multiple git repositories will be added in the future).*
+*Tips:*
+*You can use the gitwebhook on a different domain (e.g. Subdomain) and deploy to a different location on your server if you like. The gitwebhook module supports only a single git repository at the moment (multiple git repositories will be added in the future).*
 
 ### Troubleshooting:
 If you run into any problems and the git data doesn't get pulled correctly, then look into the webhook section on github (Settings -> Webhooks) and click on the webhook, further below you'll see the "Recent Deliveries", you can inspect them and even trigger the events manually again if necessary.
