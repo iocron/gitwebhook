@@ -5,7 +5,7 @@
 This script automates the pushes from github so they can be directly provisioned (pulled / cloned) to the right server.
 
 Use the following steps to set up a new gitwebhook on your github (or bitbucket) account & server:
-(note: be sure that a deploy key on your server is set as well: https://github.com/\<username\>/\<repository\>/settings/keys, more informations about the whole process of deploy keys: [Setup a deploy key for your server](https://developer.github.com/guides/managing-deploy-keys/#setup-2))
+(note: be sure that a deploy key on your server is set as well. More informations about the whole process of deploy keys: [Setup a deploy key for your server](https://developer.github.com/guides/managing-deploy-keys/#setup-2))
 
 ### On Github (First Step):
 
@@ -18,8 +18,9 @@ Use the following steps to set up a new gitwebhook on your github (or bitbucket)
 
 1. Go to your Repository and click on "Settings", then click on "Webhooks"
 2. Click on "Add webhook"
-3. Use the following url: https://\<yourwebsite\>/gitwebhook/index.php?bitbucket_secret=<secret> 
-   (replace <secret> with a Secret of your choice)
+3. Use the following url: https://\<yourwebsite\>/gitwebhook/index.php?bitbucket_secret=\<secret\> 
+   
+   (replace \<secret\> with a Secret of your choice)
 
 ### On your Server (Second Step):
 
@@ -32,7 +33,7 @@ Use the following steps to set up a new gitwebhook on your github (or bitbucket)
    // Your URL to the Repository (preferably use a ssh url if it's a private repo)<br>
    "repository":"git@github.com:octocat/Hello-World.git",<br>
    // Your secret key (created from the previous steps "On Github" / "On Bitbucket")<br>
-   "secret":"<secret>",<br>
+   "secret":"\<secret\>",<br>
    // Your Deployment directory<br>
    "deployDir":"/var/www/example.com/httpdocs",<br>
    // Notifications about the deployment will be sent to your email (leave empty if none)<br>
