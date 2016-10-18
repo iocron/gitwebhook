@@ -59,7 +59,7 @@ class Githubwebhook
         }
 
         // Setup Git Pull / Clone Commands
-        passthru("./lib/is_dir.sh '{$this->gitDir}'",$is_dir);
+        passthru("./lib/is_dir.sh '{$this->gitDir}/.git'",$is_dir);
         if($is_dir=="1"){
           $execCommand = "cd {$this->gitDir} && git checkout {$this->branch} && git pull -f 2>&1";
           $tmpMailSubject = "Successful: Git pull executed";
