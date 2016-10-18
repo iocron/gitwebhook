@@ -86,7 +86,7 @@ class Githubwebhook
     public function validate(){
       // Bitbucket Payload Validation (simple)
       if(isset($_GET["bitbucket_secret"])){
-        if($_REQUEST['bitbucket_secret'] == $this->secret && isset($_REQUEST['payload'])){
+        if($_REQUEST['bitbucket_secret'] == $this->secret && isset($_REQUEST['HTTP_X_HOOK_UUID'])){
           return true;
         } else {
           return false;

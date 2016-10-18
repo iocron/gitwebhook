@@ -40,6 +40,7 @@ Use the following steps to set up a new gitwebhook on your github (or bitbucket)
    "mail":"mail@example.com",<br>
    // Mail Subject Prefix (the subject will be completed by the error type if anything bad happens)<br>
    "mailSubject":"Gitwebhook - "
+6. Make a test commit to your Github / Bitbucket Repo and see if the code on your server has changed as well, have fun.
 
 (If you are a bitbucket user, then edit the .htaccess and uncomment the Bitbucket User Block)
 

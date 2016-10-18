@@ -27,6 +27,6 @@
     if($webhook->validate()){
         $webhook->handle();
     } else {
-        $webhook->notification("Error: Wrong Secret","Server Output:{$eol}".(print_r($_SERVER,true))."{$eol}{$eol}Webhook Data:{$eol}".$webhookDataStr);
+        $webhook->notification("Error: Secret Validation Failed","Server Output:{$eol}".(print_r($_SERVER,true))."{$eol}{$eol}Webhook Data:{$eol}".$webhookDataStr);
     }
 ?>
