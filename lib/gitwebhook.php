@@ -67,12 +67,12 @@ class Githubwebhook
           $execCommand = "cd {$this->gitDir} && git checkout {$this->branch} && git pull -f 2>&1";
           $tmpMailSubject = "Successful: Git pull executed";
         } else {
-          $execCommand = "cd {$this->gitDir} && git clone {$this->repository} . 2>&1 && git checkout {$this->branch}";
+          $execCommand = "cd {$this->gitDir} && git clone {$this->repository} . && git checkout {$this->branch}";
           $tmpMailSubject = "Successful: Git clone executed";
         }
         
         // Execute Git Pull / Clone Commands
-        if(!emtpy($this->linuxUser) && !empty($this->linuxGroup)){
+        if(!isset($this->linuxUser) && !isset($this->linuxGroup)){
           exec("su -p -c '$execCommand' {$this->linuxUser}",$this->gitOutput);
         } else {
           exec($execCommand,$this->gitOutput);
@@ -103,11 +103,11 @@ class Githubwebhook
           return false;
         }
         if(empty($payload)){
-          $this->notification("Error: Payload is empty.","Something went really wrong about your payload (empty).\nPayload Data:".$payload);
+          $this->notification("Error: Payload is empty.","Something went really wrong about your payload (empty).");
           return false;
         }
         if(!isset($payload->repository->name, $payload->push->changes)){
-          $this->notification("Error: Invalid Payload Data received.","Your payload data isn't valid.\nPayload Data:".$payload);
+          $this->notification("Error: Invalid Payload Data received.","Your payload data isn't valid.\nPayload Data:\n".$payload);
           return false;
         }
         

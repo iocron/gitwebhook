@@ -1,5 +1,7 @@
 #!/bin/bash
 
 if [[ -d "$1" ]]; then
-        return 1;
+        exit 1;
+else
+        exit 0;
 fi
