@@ -64,12 +64,16 @@ class Githubwebhook
           $execCommand = "cd {$this->gitDir} && git checkout {$this->branch} && git pull -f 2>&1";
           $tmpMailSubject = "Successful: Git pull executed";
         } else {
-          $execCommand = "cd {$this->gitDir} && git clone {$this->repository} . && git checkout {$this->branch} 2>&1";
+          $execCommand = "cd {$this->gitDir} && git clone {$this->repository} . 2>&1 && git checkout {$this->branch}";
           $tmpMailSubject = "Successful: Git clone executed";
         }
         
         // Execute Git Pull / Clone Commands
-        exec($execCommand,$this->gitOutput);
+        if(!emtpy($this->user) && !empty($this->group)){
+          exec("su -p -c '$execCommand' {$this->user}",$this->gitOutput);
+        } else {
+          exec($execCommand,$this->gitOutput);
+        }
         
         // Generate Git Report
         $gitReport = $this->gitOutput;

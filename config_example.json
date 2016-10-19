@@ -5,6 +5,8 @@
 		"git_secret":"XXXXXXXX",
 		"deployDir":"/var/www/example.com/httpdocs",
 		"mail":"mail@example.com",
-		"mailSubject":"Gitwebhook - "
+		"mailSubject":"Gitwebhook - ",
+		"linux_user":"www-data",
+		"linux_group":"www-data"
 	}
 }
