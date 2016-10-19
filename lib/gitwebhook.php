@@ -11,6 +11,7 @@ class Githubwebhook
     private $event;
     private $delivery;
     private $mail,$mailSubject;
+    private $linuxUser,$linuxGroup;
 
     public function __construct($config){
         $this->repository = $config["git_repository"];
@@ -19,6 +20,8 @@ class Githubwebhook
         $this->gitDir = $config["deployDir"];
         $this->mail = $config["mail"];
         $this->mailSubject = $config["mailSubject"];
+        $this->linuxUser = $config["linux_user"];
+        $this->linuxGroup = $config["linux_group"];
     }
 
     public function getData(){
@@ -69,8 +72,8 @@ class Githubwebhook
         }
         
         // Execute Git Pull / Clone Commands
-        if(!emtpy($this->user) && !empty($this->group)){
-          exec("su -p -c '$execCommand' {$this->user}",$this->gitOutput);
+        if(!emtpy($this->linuxUser) && !empty($this->linuxGroup)){
+          exec("su -p -c '$execCommand' {$this->linuxUser}",$this->gitOutput);
         } else {
           exec($execCommand,$this->gitOutput);
         }
