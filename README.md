@@ -95,7 +95,7 @@ Use the following steps to set up a new gitwebhook on your github (or bitbucket)
    
    *(Note: When using a admin / root account for the setup, then test with: `su -p -c "ssh -Tv git@github.com" <username>` instead)*
    
-3. Make a test commit to your Github / Bitbucket Repo and see if the code on your server has changed as well, have fun.
+3. Make a test commit to your Github / Bitbucket Repo and see if the deployed repo directory / code on your server has changed as well, have fun.
 
 *Tips:*
 *You can use the gitwebhook on a different domain (e.g. Subdomain) and deploy to a different location on your server if you like (needs to be the same webuser). The gitwebhook module supports only a single git repository at the moment (multiple git repositories will be added in the future).*
@@ -117,3 +117,7 @@ Use the following steps to set up a new gitwebhook on your github (or bitbucket)
 If you run into any problems and the git data doesn't get pulled correctly, then look into the webhook section on github (Settings -> Webhooks) and click on the webhook, further below you'll see the "Recent Deliveries", you can inspect them and even trigger the events manually again if necessary.
 
 You'll also get all the necessary informations through the notification emails if something goes wrong, check them out.
+
+### Known Issues:
+- Gitwebhook always clones, but never pulls:<br>
+  You might have some permission issues and gitwebhook can't access your deployDir folder, please check the permissions of Gitwebhook and your deployDir (both need to have the same access rights / permissions)
