@@ -120,4 +120,4 @@ You'll also get all the necessary informations through the notification emails i
 
 ### Known Issues:
 - Gitwebhook always clones, but never pulls:<br>
-  You might have some permission issues and gitwebhook can't access your deployDir folder, please check the permissions of Gitwebhook and your deployDir (both need to have the same access rights through the webuser)
+  You might have some permission issues and gitwebhook can't access your deployDir folder, please check the permissions of Gitwebhook and your deployDir (both need to have the same access rights through the same webuser)
