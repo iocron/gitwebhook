@@ -79,7 +79,7 @@ Use the following steps to set up a new gitwebhook on your github (or bitbucket)
    ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts && ssh-keyscan -t rsa bitbucket.org >> ~/.ssh/known_hosts
    ```
    
-   *Note: When using a admin / root account for the setup, then use the following example (adjust the paths to your needs): `ssh-keyscan -t rsa github.com >> /var/www/example.com/.ssh/known_hosts && ssh-keyscan -t rsa bitbucket >> /var/www/example.com/.ssh/known_hosts && chmod 600 /var/www/example.com/.ssh/known_hosts` and chown the rights to the webuser*
+   *(Note: When using a admin / root account for the setup, then use the following example (adjust the paths to your needs): `ssh-keyscan -t rsa github.com >> /var/www/example.com/.ssh/known_hosts && ssh-keyscan -t rsa bitbucket >> /var/www/example.com/.ssh/known_hosts && chmod 600 /var/www/example.com/.ssh/known_hosts` instead and chown the rights to the webuser)*
    
 2. Make a test connection: 
 
@@ -98,7 +98,7 @@ Use the following steps to set up a new gitwebhook on your github (or bitbucket)
 3. Make a test commit to your Github / Bitbucket Repo and see if the code on your server has changed as well, have fun.
 
 *Tips:*
-*You can use the gitwebhook on a different domain (e.g. Subdomain) and deploy to a different location on your server if you like. The gitwebhook module supports only a single git repository at the moment (multiple git repositories will be added in the future).*
+*You can use the gitwebhook on a different domain (e.g. Subdomain) and deploy to a different location on your server if you like (needs to be the same webuser). The gitwebhook module supports only a single git repository at the moment (multiple git repositories will be added in the future).*
 
 ### config.json Options
 
