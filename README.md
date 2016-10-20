@@ -2,7 +2,7 @@
 
 ## Overview & Usage
 
-This script automates the pushes from github (or bitbucket) so they can be directly provisioned (pulled / cloned) to the right server and location.
+This script automates the pushes from github (or bitbucket) so they can be directly provisioned (pulled / cloned) on the right server and location.
 
 Use the following steps to set up a new gitwebhook on your github (or bitbucket) account & server:
 
