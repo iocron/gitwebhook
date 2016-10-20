@@ -57,7 +57,7 @@ Use the following steps to set up a new gitwebhook on your github (or bitbucket)
    
    Further reading: [Github - Generate a new SSH Key](https://help.github.com/articles/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent/)
 
-   *(Note: When you have multiple users for different domains on your machine, then save the key to /var/www/\<domain\>/.ssh/id_rsa instead)*
+   *(Note: When using a admin / root account for the setup, then save the key to /var/www/\<domain\>/.ssh/id_rsa instead and chown the rights to the webuser)*
 
 2. Copy the public key and add it to Github / Bitbucket as the Deploy Key 
 
@@ -65,7 +65,7 @@ Use the following steps to set up a new gitwebhook on your github (or bitbucket)
    cat ~/.ssh/id_rsa.pub
    ```
    
-   *(Note: In case of having multiple users for different domains use: cat /var/www/\<domain\>/.ssh/id_rsa.pub)*
+   *(Note: When using a admin / root account for the setup, then use: cat /var/www/\<domain\>/.ssh/id_rsa.pub instead)*
 
    Further Reading:<br>
    [Github - Setup deploy key](https://developer.github.com/guides/managing-deploy-keys/#setup-2)<br>
@@ -79,11 +79,7 @@ Use the following steps to set up a new gitwebhook on your github (or bitbucket)
    ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts && ssh-keyscan -t rsa bitbucket.org >> ~/.ssh/known_hosts
    ```
    
-   *Note: In case of having multiple users for different domains use the following example (adjust the paths to your needs):*
-   
-   ```
-   ssh-keyscan -t rsa github.com >> /var/www/example.com/.ssh/known_hosts && ssh-keyscan -t rsa bitbucket >> /var/www/example.com/.ssh/known_hosts && chmod 600 /var/www/example.com/.ssh/known_hosts
-   ```
+   *Note: When using a admin / root account for the setup, then use the following example (adjust the paths to your needs): `ssh-keyscan -t rsa github.com >> /var/www/example.com/.ssh/known_hosts && ssh-keyscan -t rsa bitbucket >> /var/www/example.com/.ssh/known_hosts && chmod 600 /var/www/example.com/.ssh/known_hosts` and chown the rights to the webuser*
    
 2. Make a test connection: 
 
@@ -97,7 +93,7 @@ Use the following steps to set up a new gitwebhook on your github (or bitbucket)
    ssh -Tv git@bitbucket.org
    ```
    
-   *(Note: In case of having multiple users for different domains test with: `su -p -c "ssh -Tv git@github.com" <username>` instead)*
+   *(Note: When using a admin / root account for the setup, then test with: `su -p -c "ssh -Tv git@github.com" <username>` instead)*
    
 3. Make a test commit to your Github / Bitbucket Repo and see if the code on your server has changed as well, have fun.
 

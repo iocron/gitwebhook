@@ -11,7 +11,6 @@ class Githubwebhook
     private $event;
     private $delivery;
     private $mail,$mailSubject;
-    private $linuxUser,$linuxGroup;
 
     public function __construct($config){
         $this->repository = $config["git_repository"];
@@ -20,8 +19,6 @@ class Githubwebhook
         $this->gitDir = $config["deployDir"];
         $this->mail = $config["mail"];
         $this->mailSubject = $config["mailSubject"];
-        $this->linuxUser = $config["linux_user"];
-        $this->linuxGroup = $config["linux_group"];
     }
 
     public function getData(){
@@ -62,8 +59,7 @@ class Githubwebhook
         }
 
         // Setup Git Pull / Clone Commands
-        $git_exists = shell_exec("if [[ -d {$this->gitDir}/.git ]]; then echo 1; fi");
-        if($git_exists=="1"){
+        if(file_exists("{$this->gitDir}/.git")){
           $execCommand = "cd {$this->gitDir} && git checkout {$this->branch} && git pull -f 2>&1";
           $tmpMailSubject = "Successful: Git pull executed";
         } else {
@@ -72,11 +68,13 @@ class Githubwebhook
         }
         
         // Execute Git Pull / Clone Commands
+        exec($execCommand,$this->gitOutput);
+        /*
         if(!isset($this->linuxUser) && !isset($this->linuxGroup)){
           exec("su -p -c '$execCommand' {$this->linuxUser}",$this->gitOutput);
         } else {
           exec($execCommand,$this->gitOutput);
-        }
+        }*/
         
         // Generate Git Report
         $gitReport = $this->gitOutput;
