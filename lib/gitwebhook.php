@@ -11,6 +11,7 @@ class Githubwebhook
     private $event;
     private $delivery;
     private $mail,$mailSubject;
+    private $linuxUser,$linuxGroup;
 
     public function __construct($config){
         $this->repository = $config["git_repository"];
@@ -19,6 +20,8 @@ class Githubwebhook
         $this->gitDir = $config["deployDir"];
         $this->mail = $config["mail"];
         $this->mailSubject = $config["mailSubject"];
+        $this->linuxUser = $config["linux_user"];
+        $this->linuxGroup = $config["linux_group"];
     }
 
     public function getData(){
@@ -63,8 +66,12 @@ class Githubwebhook
           $execCommand = "cd {$this->gitDir} && git checkout {$this->branch} && git pull -f 2>&1";
           $tmpMailSubject = "Successful: Git pull executed";
         } else {
-          $execCommand = "cd {$this->gitDir} && git clone {$this->repository} . && git checkout {$this->branch}";
+          $execCommand = "cd {$this->gitDir} && git clone {$this->repository} . 2>&1 && git checkout {$this->branch}";
           $tmpMailSubject = "Successful: Git clone executed";
+        }
+        
+        if(!empty($this->linuxUser) || !empty($this->linuxGroup)){
+          $execCommand .= " && find . -exec chown {$this->linuxUser}:{$this->linuxGroup} {} \;";
         }
         
         // Execute Git Pull / Clone Commands
@@ -147,7 +154,8 @@ class Githubwebhook
     
     public function notification($subject,$message){
         if($this->mail != "false" && $this->mail != ""){
-            mail($this->mail,$this->mailSubject.$subject,$message);
+            $subject = stristr('{{subject}}',$subject,$this->mailSubject);
+            mail($this->mail,$subject,$message);
         }
     }
 }
