@@ -102,6 +102,8 @@ Use the following steps to set up a new gitwebhook on your github (or bitbucket)
 
 ### config.json Options
 
+   // If you are using more than one repository in your config, then replace "gitwebhook" with a unique identifier / name of your choice (e.g. "example.com"), otherwise leave it as it is already
+   `"gitwebhook": { ... }`
    // Your URL to the Repository (preferably use a ssh url if it's a private repo)<br>
    `"repository":"git@github.com:octocat/Hello-World.git",`<br>
    // Your secret key (created from the previous steps "On Github" / "On Bitbucket")<br>
