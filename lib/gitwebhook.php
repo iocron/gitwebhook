@@ -51,10 +51,10 @@ class Gitwebhook
 
         // Setup Git Pull / Clone Commands
         if(file_exists("{$this->gitDir}/.git")){
-          $execCommand = "cd {$this->gitDir} && git checkout {$this->branch} && git pull -f 2>&1";
+          $execCommand = "{ cd {$this->gitDir} && git checkout {$this->branch} && git pull -f } 2>&1";
           $tmpMailSubject = "Successful: Git pull executed";
         } else {
-          $execCommand = "cd {$this->gitDir} && git clone {$this->repository} . 2>&1 && git checkout {$this->branch}";
+          $execCommand = "{ cd {$this->gitDir} && git clone {$this->repository} . && git checkout {$this->branch} } 2>&1";
           $tmpMailSubject = "Successful: Git clone executed";
         }
         
