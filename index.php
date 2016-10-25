@@ -3,23 +3,25 @@
     require_once(__DIR__."/lib/gitwebhook.php");
     
     // Namespaces
-    use Gitdeployer\Githubwebhook;
+    use Gitdeployer\Gitwebhook;
     
     // Config / Default Settings
     if(file_exists(__DIR__."/config.json")){
         $config = json_decode(file_get_contents(__DIR__."/config.json"),true);
         
         if(empty($config)){
-            echo "The gitwebhook Config File is not valid or is corrupted.";
-            die();
+          $errMsg = "[ERROR]: The Gitwebhook Config File is not valid or is corrupted.";
+          if(ini_get('display_errors') != "1") echo "{$errMsg}";
+          throw new Exception("{$errMsg}");
         }
     } else {
-        echo "The gitwebhook Config File doesn't exist!";
-        die();
+        $errMsg = "[ERROR]: The Gitwebhook Config File doesn't exist!"; 
+        if(ini_get('display_errors') != "1") echo "{$errMsg}"; 
+        throw new Exception("{$errMsg}");
     }
     
-    // GITHUB WEBHOOK
-    $webhook = new Githubwebhook($config["gitwebhook"]);
+    // Gitwebhook
+    $webhook = new Gitwebhook($config);
     $webhookData = $webhook->getData();
     $webhookDataStr = print_r($webhookData,true);
     $eol = PHP_EOL;

@@ -98,7 +98,7 @@ Use the following steps to set up a new gitwebhook on your github (or bitbucket)
 3. Make a test commit to your Github / Bitbucket Repo and see if the deployed repo directory / code on your server has changed as well, have fun.
 
 *Tips:*
-*You can use the gitwebhook on a different domain (e.g. Subdomain) and deploy to a different location on your server if you like (needs to be the same webuser). The gitwebhook module supports only a single git repository at the moment (multiple git repositories will be added in the future).*
+*You can also use the gitwebhook on a different domain (e.g. Subdomain) and deploy to a different location on your server if you like (needs to be the same webuser because of access rights). If you want to use the gitwebhook with multiple git repositories, then copy the "gitwebhook": {...} block and paste it below the first "gitwebhook": {...} block (don't forget to add a "," at the end of each "gitwebhook": {...}, block).*
 
 ### config.json Options
 

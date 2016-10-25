@@ -1,7 +1,7 @@
 <?php
 namespace Gitdeployer;
 
-class Githubwebhook
+class Gitwebhook
 {
     private $secret;
     private $repository,$branch;
@@ -14,42 +14,30 @@ class Githubwebhook
     private $linuxUser,$linuxGroup;
 
     public function __construct($config){
-        $this->repository = $config["git_repository"];
-        $this->branch = $config["git_branch"];
-        $this->secret = $config["git_secret"];
-        $this->gitDir = $config["deployDir"];
-        $this->mail = $config["mail"];
-        $this->mailSubject = $config["mailSubject"];
-        $this->linuxUser = $config["linux_user"];
-        $this->linuxGroup = $config["linux_group"];
+      $conf = $this->validateConfig($config);
+      $this->repository = $conf["git_repository"];
+      $this->branch = $conf["git_branch"];
+      $this->secret = $conf["git_secret"];
+      $this->gitDir = $conf["deployDir"];
+      $this->mail = $conf["mail"];
+      $this->mailSubject = $conf["mailSubject"];
+      $this->linuxUser = $conf["linux_user"];
+      $this->linuxGroup = $conf["linux_group"];  
     }
 
-    public function getData(){
-        return $this->data;
-    }
-
-    public function getDelivery(){
-        return $this->delivery;
-    }
-
-    public function getEvent(){
-        return $this->event;
-    }
-
-    public function getGitDir(){
-        return $this->gitDir;
-    }
-
-    public function getGitOutput(){
-        return $this->gitOutput;
-    }
-
-    public function getRepository(){
-        return $this->repository;
-    }
-
-    public function getSecret(){
-        return $this->secret;
+    public function getData(){ return $this->data; }
+    public function getDelivery(){ return $this->delivery; }
+    public function getEvent(){ return $this->event; }
+    public function getGitDir(){ return $this->gitDir; }
+    public function getGitOutput(){ return $this->gitOutput; }
+    public function getRepository(){ return $this->repository; }
+    public function getSecret(){ return $this->secret; }
+    
+    public function notification($subject,$message){
+        if($this->mail != "false" && $this->mail != ""){
+            $subjectWithInsertTag = str_replace('{{subject}}',$subject,$this->mailSubject);
+            mail($this->mail,$subjectWithInsertTag,$message);
+        }
     }
 
     public function handle(){
@@ -76,12 +64,6 @@ class Githubwebhook
         
         // Execute Git Pull / Clone Commands
         exec($execCommand,$this->gitOutput);
-        /*
-        if(!isset($this->linuxUser) && !isset($this->linuxGroup)){
-          exec("su -p -c '$execCommand' {$this->linuxUser}",$this->gitOutput);
-        } else {
-          exec($execCommand,$this->gitOutput);
-        }*/
         
         // Generate Git Report
         $gitReport = $this->gitOutput;
@@ -98,7 +80,7 @@ class Githubwebhook
         return true;
     }
 
-    public function validate(){
+    public function validate(){      
       // Bitbucket Payload Validation (simple)
       if(isset($_REQUEST['bitbucket_secret'])){
         $payload = json_decode(file_get_contents('php://input'));
@@ -152,10 +134,26 @@ class Githubwebhook
       return ($payloadHash === $gitHubSignature);
     }
     
-    public function notification($subject,$message){
-        if($this->mail != "false" && $this->mail != ""){
-            $subject = stristr('{{subject}}',$subject,$this->mailSubject);
-            mail($this->mail,$subject,$message);
+    protected function validateConfig($config){
+      // Allocate the right gitwebhook config according to the right repo
+      $payloadData = json_decode(file_get_contents('php://input'));
+      $payloadDataRepoFullname = $payloadData->repository->full_name;
+      $configLength = count($config);
+      $configPick = false;
+      
+      for($i=0; $i<$configLength; $i++){
+        if(stristr($config[$i]["git_repository"],$payloadDataRepoFullname)){
+          $configPick = $config[$i];
+          break;
         }
+      }
+      
+      if($configPick == false){
+        $errMsg = "[ERROR]: Gitwebhook: Your repository ".htmlspecialchars($payloadDataRepoFullname,ENT_QUOTES,'utf-8')." didn't match any of the config repository entries.";
+        if(ini_get('display_errors') != "1") echo "{$errMsg}";
+        throw new Exception("{$errMsg}");
+      } else {
+        return $configPick;
+      }
     }
 }
