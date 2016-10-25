@@ -1,4 +1,4 @@
-# Gitwebhook for automatic Deployments to your Server
+# Gitwebhook for automatic Deployments on your Server
 
 ## Overview & Usage
 
@@ -23,7 +23,7 @@ Use the following steps to set up a new gitwebhook on your github (or bitbucket)
 
 ### Setup Gitwebhook (Second Step):
 
-1. Go to the directory of your choice (has to be accessible from outside / the web)
+1. Go to the directory where you want to install the gitwebhook (has to be accessible from outside / the web)
    ```
    cd <yourWebsiteFolder>
    ``` 
@@ -105,7 +105,7 @@ Use the following steps to set up a new gitwebhook on your github (or bitbucket)
    // Your URL to the Repository (preferably use a ssh url if it's a private repo)<br>
    `"repository":"git@github.com:octocat/Hello-World.git",`<br>
    // Your secret key (created from the previous steps "On Github" / "On Bitbucket")<br>
-   `"secret":"\<secret\>",`<br>
+   `"secret":"<secret>",`<br>
    // Your Deployment directory<br>
    `"deployDir":"/var/www/example.com/httpdocs",`<br>
    // Notifications about the deployment will be sent to your email (leave empty if none)<br>
