@@ -9,7 +9,7 @@ Use the following steps to set up a new gitwebhook on your github (or bitbucket)
 ### On Github (First Step):
 
 1. Go to your Repository and click on "Settings", then click on "Add webhook"
-2. Use the following payload url: https://\<example.com\>/gitwebhook/index.php
+2. Type in the path where you want to install your gitwebhook: https://\<example.com\>/gitwebhook/index.php (or as subdomain, etc.)
 3. Add a secret of your choice
 4. Select the option "Just the push event.", then click on "Add webhook"
 
@@ -17,7 +17,7 @@ Use the following steps to set up a new gitwebhook on your github (or bitbucket)
 
 1. Go to your Repository and click on "Settings", then click on "Webhooks"
 2. Click on "Add webhook"
-3. Use the following url: https://\<example.com\>/gitwebhook/index.php?bitbucket_secret=\<secret\> 
+3. Type in the path where you want to install your gitwebhook: https://\<example.com\>/gitwebhook/index.php?bitbucket_secret=\<secret\> (or as subdomain, etc.)
 
    (replace \<secret\> with a Secret of your choice)
 
@@ -120,4 +120,4 @@ You'll also get all the necessary informations through the notification emails i
 
 ### Known Issues:
 - Gitwebhook always clones, but never pulls:<br>
-  You might have some permission issues and gitwebhook can't access your deployDir folder, please check the permissions of Gitwebhook and your deployDir (both need to have the same access rights through the same webuser)
+  You might have some permission issues and gitwebhook can't access your deployDir folder, please check the permissions of Gitwebhook and your deployDir (both need to have similar access rights through the same webuser)
