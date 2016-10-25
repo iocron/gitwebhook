@@ -51,16 +51,18 @@ class Gitwebhook
 
         // Setup Git Pull / Clone Commands
         if(file_exists("{$this->gitDir}/.git")){
-          $execCommand = "cd {$this->gitDir} && git checkout {$this->branch} && git pull -f 2>&1";
+          $execCommand = "( cd {$this->gitDir} && git checkout {$this->branch} && git pull -f )";
           $tmpMailSubject = "Successful: Git pull executed";
         } else {
-          $execCommand = "cd {$this->gitDir} && git clone {$this->repository} . && git checkout {$this->branch}";
+          $execCommand = "( cd {$this->gitDir} && git clone {$this->repository} . && git checkout {$this->branch} )";
           $tmpMailSubject = "Successful: Git clone executed";
         }
         
+        // Setup execCommand as another Linux User / Group if a User / Group in the Config is set
         if(!empty($this->linuxUser) || !empty($this->linuxGroup)){
-          //$execCommand .= " && find . -exec chown {$this->linuxUser}:{$this->linuxGroup} {} \;";
           $execCommand = "su -c '{$execCommand}' 2>&1 {$this->linuxUser}";
+        } else {
+          $execCommand = "{$execCommand} 2>&1";
         }
         
         // Execute Git Pull / Clone Commands
