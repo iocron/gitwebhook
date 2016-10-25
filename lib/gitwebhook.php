@@ -11,20 +11,20 @@ class Gitwebhook
     private $event;
     private $delivery;
     private $mail,$mailSubject;
-    private $linuxUser,$linuxGroup;
+    private $linuxUser;
 
     public function __construct($config){
       $conf = $this->validateConfig($config);
-      $this->repository = $conf["git_repository"];
-      $this->branch = $conf["git_branch"];
-      $this->secret = $conf["git_secret"];
-      $this->gitDir = $conf["deployDir"];
-      $this->mail = $conf["mail"];
-      $this->mailSubject = $conf["mailSubject"];
-      $this->linuxUser = $conf["linux_user"];
-      $this->linuxGroup = $conf["linux_group"];  
+      $this->repository = $this->getVar($conf["git_repository"]);
+      $this->branch = $this->getVar($conf["git_branch"]);
+      $this->secret = $this->getVar($conf["git_secret"]);
+      $this->gitDir = $this->getVar($conf["deployDir"]);
+      $this->mail = $this->getVar($conf["mail"]);
+      $this->mailSubject = $this->getVar($conf["mailSubject"]);
+      $this->linuxUser = $this->getVar($conf["linux_user"] );
     }
 
+    // GETTER
     public function getData(){ return $this->data; }
     public function getDelivery(){ return $this->delivery; }
     public function getEvent(){ return $this->event; }
@@ -32,7 +32,9 @@ class Gitwebhook
     public function getGitOutput(){ return $this->gitOutput; }
     public function getRepository(){ return $this->repository; }
     public function getSecret(){ return $this->secret; }
+    protected function getVar($var){ return !empty($var) ? $var : ""; }
     
+    // SETTER & VALIDATORS
     public function notification($subject,$message){
         if($this->mail != "false" && $this->mail != ""){
             $subjectWithInsertTag = str_replace('{{subject}}',$subject,$this->mailSubject);
@@ -42,6 +44,9 @@ class Gitwebhook
 
     public function handle(){
         $eol = PHP_EOL;
+        
+        // Set Identity Variables of the current Linux User and Group of the running script
+        $currentUser = exec('whoami'); // $currentGroup = exec("id -Gn {$currentUser}");
         
         // Validation Check
         if (!$this->validate()) {
@@ -58,8 +63,8 @@ class Gitwebhook
           $tmpMailSubject = "Successful: Git clone executed";
         }
         
-        // Setup execCommand as another Linux User / Group if a User / Group in the Config is set
-        if(!empty($this->linuxUser) || !empty($this->linuxGroup)){
+        // Setup execCommand as another Linux User if a Linux User is defined in the Config
+        if(!empty($this->linuxUser) && $currentUser != $this->linuxUser){
           $execCommand = "su -c '{$execCommand}' 2>&1 {$this->linuxUser}";
         } else {
           $execCommand = "{$execCommand} 2>&1";

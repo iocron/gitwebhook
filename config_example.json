@@ -6,7 +6,6 @@
 		"deployDir":"/var/www/example.com/httpdocs",
 		"mail":"mail@example.com",
 		"mailSubject":"Gitwebhook - {{subject}}",
-		"linux_user":"",
-		"linux_group":""
+		"linux_user":""
 	}
 }
