@@ -134,16 +134,15 @@ class Gitwebhook
       return ($payloadHash === $gitHubSignature);
     }
     
-    protected function validateConfig($config){
+    protected function validateConfig($config){      
       // Allocate the right gitwebhook config according to the right repo
       $payloadData = json_decode(file_get_contents('php://input'));
       $payloadDataRepoFullname = $payloadData->repository->full_name;
-      $configLength = count($config);
       $configPick = false;
       
-      for($i=0; $i<$configLength; $i++){
-        if(stristr($config[$i]["git_repository"],$payloadDataRepoFullname)){
-          $configPick = $config[$i];
+      foreach($config as $conf){
+        if(stristr($conf["git_repository"],$payloadDataRepoFullname)){
+          $configPick = $conf;
           break;
         }
       }
