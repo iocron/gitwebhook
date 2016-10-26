@@ -10,6 +10,7 @@ Thumbs.db
 
 # Exclude Lock Files
 *.lock
+.lock_gitwebhook
 
 # Logs
 /logs/*
