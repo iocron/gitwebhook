@@ -12,19 +12,21 @@ class Gitwebhook
     private $delivery;
     private $mail,$mailSubject;
     private $linuxUser;
+    private $valid;
 
     public function __construct($config){
       $conf = $this->validateConfig($config);
-      $this->repository = $this->getVar($conf["git_repository"]);
-      $this->branch = $this->getVar($conf["git_branch"]);
-      $this->secret = $this->getVar($conf["git_secret"]);
-      $this->gitDir = $this->getVar($conf["deployDir"]);
-      $this->mail = $this->getVar($conf["mail"]);
-      $this->mailSubject = $this->getVar($conf["mailSubject"]);
-      $this->linuxUser = $this->getVar($conf["linux_user"] );
+      $this->repository = $this->getConfigVar($conf["git_repository"]);
+      $this->branch = $this->getConfigVar($conf["git_branch"]);
+      $this->secret = $this->getConfigVar($conf["git_secret"]);
+      $this->gitDir = $this->getConfigVar($conf["deployDir"]);
+      $this->mail = $this->getConfigVar($conf["mail"]);
+      $this->mailSubject = $this->getConfigVar($conf["mailSubject"]);
+      $this->linuxUser = $this->getConfigVar($conf["linux_user"] );
     }
 
     // GETTER
+    protected function getConfigVar($var){ return !empty($var) ? escapeshellarg($var) : ""; }
     public function getData(){ return $this->data; }
     public function getDelivery(){ return $this->delivery; }
     public function getEvent(){ return $this->event; }
@@ -32,9 +34,8 @@ class Gitwebhook
     public function getGitOutput(){ return $this->gitOutput; }
     public function getRepository(){ return $this->repository; }
     public function getSecret(){ return $this->secret; }
-    protected function getVar($var){ return !empty($var) ? $var : ""; }
     
-    // SETTER & VALIDATORS
+    // SETTER, HELPER & VALIDATORS
     public function notification($subject,$message){
         if($this->mail != "false" && $this->mail != ""){
             $subjectWithInsertTag = str_replace('{{subject}}',$subject,$this->mailSubject);
@@ -45,14 +46,14 @@ class Gitwebhook
     public function handle(){
         $eol = PHP_EOL;
         
-        // Set Identity Variables of the current Linux User and Group of the running script
-        $currentUser = exec('whoami'); // $currentGroup = exec("id -Gn {$currentUser}");
-        
         // Validation Check
-        if (!$this->validate()) {
+        if (!$this->validateInit(false)) {
             $this->notification("Error: Git handle validation check failed","Server Output:{$eol}".print_r($_SERVER,true));
             return false;
         }
+        
+        // Set Identity Variables of the current Linux User and Group of the running script
+        $currentUser = exec('whoami'); // $currentGroup = exec("id -Gn {$currentUser}");
 
         // Setup Git Pull / Clone Commands
         if(file_exists("{$this->gitDir}/.git")){
@@ -87,10 +88,33 @@ class Gitwebhook
 
         return true;
     }
+    
+    public function validateInit($lock=true){
+      $validate = $this->validate();
+      
+      if($validate){
+        return true;
+      } else {
+        if($lock){
+          $lockFile = file_exists(__DIR__."/.lock_gitwebhook") ? __DIR__."/.lock_gitwebhook" : false;
+          $lockFileContent = $lockFile ? file_get_contents($lockFile) : "0";
+          $lockNum = intval($lockFileContent);
+          
+          if(time() - filemtime($lockFile) > 20160){
+            unlink($lockFile);
+          }
+          
+          file_put_contents($lockFile, print_r($lockNum+1,true));
+        }
+        
+        return false;
+      }
+    }
 
-    public function validate(){      
+    public function validate(){
       // Bitbucket Payload Validation (simple)
       if(isset($_REQUEST['bitbucket_secret'])){
+        $attemptNumber = @$_SERVER['X-Attempt-Number'];
         $payload = json_decode(file_get_contents('php://input'));
         
         if($_REQUEST["bitbucket_secret"] != $this->secret){
@@ -103,6 +127,13 @@ class Gitwebhook
         }
         if(!isset($payload->repository->name, $payload->push->changes)){
           $this->notification("Error: Invalid Payload Data received.","Your payload data isn't valid.\nPayload Data:\n".$payload);
+          return false;
+        }
+        if(!isset($attemptNumber)){
+          $this->notification("Error: Invalid Payload Data received (attemptNumber).","Your payload data isn't valid.\nPayload Data:\n".$payload);
+          return false;
+        } else if($attemptNumber>1){
+          echo "The Git Execution is still in progress (this is the #{$attemptNumber} attempt), please wait..";
           return false;
         }
         
