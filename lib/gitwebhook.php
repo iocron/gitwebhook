@@ -1,6 +1,4 @@
 <?php
-namespace Gitdeployer;
-
 class Gitwebhook
 {
     private $secret;

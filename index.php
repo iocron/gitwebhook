@@ -2,9 +2,6 @@
   // Requirements / Includes
   require_once(__DIR__."/lib/gitwebhook.php");
   
-  // Namespaces
-  use Gitdeployer\Gitwebhook;
-  
   // Config / Default Settings
   if(file_exists(__DIR__."/config.json")){
     $config = json_decode(file_get_contents(__DIR__."/config.json"),true);
