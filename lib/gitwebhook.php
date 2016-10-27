@@ -127,6 +127,7 @@ class Gitwebhook
         // Reset Lock after 15 Minutes
         if(file_exists($lockFile) && time() - filemtime($lockFile) > 900){
           file_put_contents($lockFile, "0", LOCK_EX);
+          $lockNum = 0;
         }
         
         // Set Lockdown if lockNum (lock attempts) is 10 or higher (for 15 Minutes) and set validate false
