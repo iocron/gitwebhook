@@ -64,7 +64,7 @@ class Gitwebhook
     // SETTER, HELPER & VALIDATORS
     public function notification($subject,$message,$mode="ERROR"){      
       if($this->debug && $mode == "ERROR"){
-        file_put_contents(__DIR__."/logs/error_log_".date("Y-m-d-His").".log","{$subject}: {$message}\n\nConfig Data:\n".print_r($this->config,true)."\n\n"."Server Data:\n".print_r($_SERVER,true));
+        file_put_contents(__DIR__."/../logs/error_log_".date("Y-m-d-His").".log","{$subject}: {$message}\n\nConfig Data:\n".print_r($this->config,true)."\n\n"."Server Data:\n".print_r($_SERVER,true));
       }
       
       if($this->mail != "false" && $this->mail != ""){
@@ -119,7 +119,7 @@ class Gitwebhook
       $validate = $this->validate();
       
       if($lock){
-        $lockFile = file_exists(__DIR__."/.lock_gitwebhook") ? __DIR__."/.lock_gitwebhook" : false;
+        $lockFile = file_exists(__DIR__."/../tmp/lock_gitwebhook") ? __DIR__."/../tmp/lock_gitwebhook" : false;
         $lockFileContent = $lockFile ? file_get_contents($lockFile) : "0";
         $lockNum = intval($lockFileContent);
         
