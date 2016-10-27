@@ -13,13 +13,13 @@ class Gitwebhook
 
     public function __construct($config){
       $this->config = $this->getConfig($config);
-      $this->repository = $this->getConfigVar("git_repository","shell");
-      $this->branch = $this->getConfigVar("git_branch","shell");
+      $this->repository = $this->getConfigVar("git_repository");
+      $this->branch = $this->getConfigVar("git_branch");
       $this->secret = $this->getConfigVar("git_secret");
-      $this->deployDir = $this->getConfigVar("deployDir","shell");
+      $this->deployDir = $this->getConfigVar("deployDir");
       $this->mail = $this->getConfigVar("mail");
       $this->mailSubject = $this->getConfigVar("mailSubject");
-      $this->linuxUser = $this->getConfigVar("linux_user","shell");
+      $this->linuxUser = $this->getConfigVar("linux_user");
       $this->debug = $this->getConfigVar("debug") == "1" ? true : false;
     }
 
@@ -82,11 +82,15 @@ class Gitwebhook
         $currentUser = exec('whoami'); // $currentGroup = exec("id -Gn {$currentUser}");
 
         // Setup Git Pull / Clone Commands
+        $tmpDeployDir = escapeshellarg($this->deployDir);
+        $tmpBranch = escapeshellarg($this->branch);
+        $tmpRepository = escapeshellarg($this->repository);
+        
         if(file_exists($this->deployDir."/.git")){
-          $execCommand = "( cd {$this->deployDir} && git checkout {$this->branch} && git pull -f )";
+          $execCommand = "( cd {$tmpDeployDir} && git checkout {$tmpBranch} && git pull -f )";
           $tmpMailSubject = "Successful: Git pull executed";
         } else {
-          $execCommand = "( cd {$this->deployDir} && git clone {$this->repository} . && git checkout {$this->branch} )";
+          $execCommand = "( cd {$tmpDeployDir} && git clone {$tmpRepository} . && git checkout {$tmpBranch} )";
           $tmpMailSubject = "Successful: Git clone executed";
         }
         
