@@ -4,7 +4,7 @@ class Gitwebhook
     private $config;
     private $secret;
     private $repository,$branch;
-    private $gitDir;
+    private $deployDir;
     private $gitOutput;
     private $data;
     private $event;
@@ -15,25 +15,30 @@ class Gitwebhook
 
     public function __construct($config){
       $this->config = $this->getConfig($config);
-      $this->repository = $this->getConfigVar("git_repository");
-      $this->branch = $this->getConfigVar("git_branch");
+      $this->repository = $this->getConfigVar("git_repository","shell");
+      $this->branch = $this->getConfigVar("git_branch","shell");
       $this->secret = $this->getConfigVar("git_secret");
-      $this->gitDir = $this->getConfigVar("deployDir");
+      $this->deployDir = $this->getConfigVar("deployDir","shell");
       $this->mail = $this->getConfigVar("mail");
       $this->mailSubject = $this->getConfigVar("mailSubject");
-      $this->linuxUser = $this->getConfigVar("linux_user");
+      $this->linuxUser = $this->getConfigVar("linux_user","shell");
     }
 
     // GETTER
     public function getData(){ return $this->data; }
     public function getDelivery(){ return $this->delivery; }
     public function getEvent(){ return $this->event; }
-    public function getGitDir(){ return $this->gitDir; }
+    public function getDeployDir(){ return $this->deployDir; }
     public function getGitOutput(){ return $this->gitOutput; }
     public function getRepository(){ return $this->repository; }
     public function getSecret(){ return $this->secret; }
     
-    protected function getConfigVar($name){ return !empty($this->config[$name]) ? escapeshellarg($this->config[$name]) : ""; }
+    protected function getConfigVar($name,$mode="text"){
+      if(!isset($this->config["name"]) || empty($this->config["name"])) return "";
+      if($mode == "text") return $this->config["name"];
+      if($mode == "shell") return escapeshellarg($this->config[$name]);
+      return "";
+    }
     protected function getConfig($config){      
       // Allocate the right gitwebhook config according to the right repo
       $payloadData = json_decode(file_get_contents('php://input'),true);
@@ -78,11 +83,11 @@ class Gitwebhook
         $currentUser = exec('whoami'); // $currentGroup = exec("id -Gn {$currentUser}");
 
         // Setup Git Pull / Clone Commands
-        if(file_exists("{$this->gitDir}/.git")){
-          $execCommand = "( cd {$this->gitDir} && git checkout {$this->branch} && git pull -f )";
+        if(file_exists("{$this->deployDir}/.git")){
+          $execCommand = "( cd {$this->deployDir} && git checkout {$this->branch} && git pull -f )";
           $tmpMailSubject = "Successful: Git pull executed";
         } else {
-          $execCommand = "( cd {$this->gitDir} && git clone {$this->repository} . && git checkout {$this->branch} )";
+          $execCommand = "( cd {$this->deployDir} && git clone {$this->repository} . && git checkout {$this->branch} )";
           $tmpMailSubject = "Successful: Git clone executed";
         }
         
