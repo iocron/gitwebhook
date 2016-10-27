@@ -1,7 +1,7 @@
 <?php
 class Gitwebhook
 {
-    private $config;
+    private $config,$configName;
     private $secret;
     private $repository,$branch;
     private $deployDir;
@@ -13,6 +13,7 @@ class Gitwebhook
 
     public function __construct($config){
       $this->config = $this->getConfig($config);
+      $this->configName = str_replace(array("..","/"," "),array("","",""),key($this->config));
       $this->repository = $this->getConfigVar("git_repository");
       $this->branch = $this->getConfigVar("git_branch");
       $this->secret = $this->getConfigVar("git_secret");
@@ -45,7 +46,7 @@ class Gitwebhook
       $payloadDataRepoFullname = print_r($payloadData["repository"]["full_name"],true);
       $configPick = false;
       
-      foreach($config as $conf){
+      foreach($config as $key => $conf){
         if(stristr($conf["git_repository"],$payloadDataRepoFullname)){
           $configPick = $conf;
           break;
@@ -64,7 +65,7 @@ class Gitwebhook
     // SETTER, HELPER & VALIDATORS
     public function notification($subject,$message,$mode="ERROR"){      
       if($this->debug && $mode == "ERROR"){
-        file_put_contents(__DIR__."/../logs/error_log_".date("Y-m-d-His").".log","{$subject}: {$message}\n\nConfig Data:\n".print_r($this->config,true)."\n"."Server Data:\n".print_r($_SERVER,true));
+        file_put_contents(__DIR__."/../logs/{$this->configName}_error_log_".date("Y-m-d-His").".log","{$subject}: {$message}\n\nConfig Data:\n".print_r($this->config,true)."\n"."Server Data:\n".print_r($_SERVER,true));
       }
       
       if($this->mail != "false" && $this->mail != ""){
