@@ -64,7 +64,7 @@ class Gitwebhook
     // SETTER, HELPER & VALIDATORS
     public function notification($subject,$message,$mode="ERROR"){      
       if($this->debug && $mode == "ERROR"){
-        file_put_contents(__DIR__."/logs/error_log_".date("Y-m-d-His"),"{$subject}: {$message}\n\nConfig Data:\n".print_r($this->config,true)."\n\n"."Server Data:\n".$_SERVER);
+        file_put_contents(__DIR__."/logs/error_log_".date("Y-m-d-His").".log","{$subject}: {$message}\n\nConfig Data:\n".print_r($this->config,true)."\n\n"."Server Data:\n".$_SERVER);
       }
       
       if($this->mail != "false" && $this->mail != ""){
