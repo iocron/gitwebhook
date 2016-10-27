@@ -82,7 +82,7 @@ class Gitwebhook
         $currentUser = exec('whoami'); // $currentGroup = exec("id -Gn {$currentUser}");
 
         // Setup Git Pull / Clone Commands
-        if(file_exists("{$this->deployDir}/.git")){
+        if(file_exists($this->deployDir."/.git")){
           $execCommand = "( cd {$this->deployDir} && git checkout {$this->branch} && git pull -f )";
           $tmpMailSubject = "Successful: Git pull executed";
         } else {
