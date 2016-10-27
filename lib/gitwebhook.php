@@ -86,7 +86,7 @@ class Gitwebhook
         $tmpBranch = escapeshellarg($this->branch);
         $tmpRepository = escapeshellarg($this->repository);
         
-        if(file_exists($this->deployDir."/.git")){
+        if(file_exists("{$this->deployDir}/.git")){
           $execCommand = "( cd {$tmpDeployDir} && git checkout {$tmpBranch} && git pull -f )";
           $tmpMailSubject = "Successful: Git pull executed";
         } else {

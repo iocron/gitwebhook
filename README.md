@@ -115,7 +115,9 @@ Use the following steps to set up a new gitwebhook on your github (or bitbucket)
    // Mail Subject Prefix (the subject will be completed by the error type if anything bad happens)<br>
    `"mailSubject":"Gitwebhook - "`<br>
    // Executes the Git Commands as another Linux User (Optional, and only if this is allowed by your access settings)<br>
-   `"linuxUser":""`
+   `"linuxUser":""`<br>
+   // Turn on Debug mode if you need to (0 = off, 1 = on). In addition the log files will be written in logs/<br>
+   `"debug":"1"`
 
 ### Troubleshooting:
 If you run into any problems and the git data doesn't get pulled correctly, then look into the webhook section on github (Settings -> Webhooks) and click on the webhook, further below you'll see the "Recent Deliveries", you can inspect them and even trigger the events manually again if necessary.
