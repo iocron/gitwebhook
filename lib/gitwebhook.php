@@ -13,7 +13,6 @@ class Gitwebhook
 
     public function __construct($config){
       $this->config = $this->getConfig($config);
-      $this->configName = str_replace(array("..","/"," "),array("","",""),key($this->config));
       $this->repository = $this->getConfigVar("git_repository");
       $this->branch = $this->getConfigVar("git_branch");
       $this->secret = $this->getConfigVar("git_secret");
@@ -48,6 +47,7 @@ class Gitwebhook
       
       foreach($config as $key => $conf){
         if(stristr($conf["git_repository"],$payloadDataRepoFullname)){
+          $this->configName = str_replace(array("..","/"," "),array("","",""),$key);
           $configPick = $conf;
           break;
         }
