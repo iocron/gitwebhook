@@ -129,8 +129,9 @@ class Gitwebhook
           file_put_contents($lockFile, "0", LOCK_EX);
         }
         
-        // Set Lock if lockNum (lock attempts) is 10 or higher (for 15 Minutes) and set validate false
+        // Set Lockdown if lockNum (lock attempts) is 10 or higher (for 15 Minutes) and set validate false
         if($lockNum >= 10){
+          $this->notification("Error: Too many errors / wrong attempts in a short time","Gitwebhook has reached too many errors / wrong attempts in a short time. This can be caused by a misconfiguration of the gitwebhook, access rights on your server, or even a suspicious process might be running. Please check your error emails or your error logs. The lock will be suspended after 15 Minutes and you can try again.");
           return false;
         }
       }
