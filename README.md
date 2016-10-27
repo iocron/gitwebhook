@@ -38,14 +38,14 @@ Use the following steps to set up a new gitwebhook on your github (or bitbucket)
 3. Copy configuration file and htaccess so you can use them:
 
    ```
-   cp config_example.json config.json && cp .htaccess_example .htaccess && chmod 600 config.json
+   cp configs/config_example.json configs/config.json && cp .htaccess_example .htaccess && chmod 600 configs/config.json
    ```
 
    *(Note: If you are a bitbucket user, then edit the .htaccess and uncomment the Bitbucket User Block for better security)*
 4. Fill out the config.json Settings (see options at the bottom):
 
    ```
-   vim config.json
+   vim configs/config.json
    ``` 
    
 ### Setup a SSH-Keygen & Deploy Key on your Server (Third Step)

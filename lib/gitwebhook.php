@@ -6,12 +6,10 @@ class Gitwebhook
     private $repository,$branch;
     private $deployDir;
     private $gitOutput;
-    private $data;
-    private $event;
-    private $delivery;
+    private $data,$event,$delivery;
     private $mail,$mailSubject;
     private $linuxUser;
-    private $valid;
+    private $debug;
 
     public function __construct($config){
       $this->config = $this->getConfig($config);
@@ -22,6 +20,7 @@ class Gitwebhook
       $this->mail = $this->getConfigVar("mail");
       $this->mailSubject = $this->getConfigVar("mailSubject");
       $this->linuxUser = $this->getConfigVar("linux_user","shell");
+      $this->debug = $this->getConfigVar("debug") == "1" ? true : false;
     }
 
     // GETTER
@@ -34,11 +33,12 @@ class Gitwebhook
     public function getSecret(){ return $this->secret; }
     
     protected function getConfigVar($name,$mode="text"){
-      if(!isset($this->config["name"]) || empty($this->config["name"])) return "";
-      if($mode == "text") return $this->config["name"];
+      if(!isset($this->config[$name]) || empty($this->config[$name])) return "";
+      if($mode == "text") return $this->config[$name];
       if($mode == "shell") return escapeshellarg($this->config[$name]);
       return "";
     }
+    
     protected function getConfig($config){      
       // Allocate the right gitwebhook config according to the right repo
       $payloadData = json_decode(file_get_contents('php://input'),true);
@@ -62,11 +62,16 @@ class Gitwebhook
     }
     
     // SETTER, HELPER & VALIDATORS
-    public function notification($subject,$message){
-      echo $subject;
+    public function notification($subject,$message,$mode="ERROR"){      
+      if($this->debug && $mode == "ERROR"){
+        file_put_contents(__DIR__."/logs/error_log_".date("Y-m-d-His"),"{$subject}: {$message}\n\nConfig Data:\n".print_r($this->config,true)."\n\n"."Server Data:\n".$_SERVER);
+      }
+      
       if($this->mail != "false" && $this->mail != ""){
           $subjectWithInsertTag = str_replace('{{subject}}',$subject,$this->mailSubject);
-          mail($this->mail,$subjectWithInsertTag,$message);
+          $messagePrefix = "Repository: {$this->repository}\n";
+          
+          mail($this->mail,$subjectWithInsertTag,$messagePrefix.$message);
       }
     }
 
@@ -111,7 +116,7 @@ class Gitwebhook
         }
         
         // Send Notification about the Git Deployment (Git Report)
-        $this->notification($tmpMailSubject,"gitCommand:{$eol}{$execCommand}{$eol}{$eol}gitOutput:{$eol}{$gitReport}{$eol}Server Output:{$eol}".print_r($_SERVER,true));
+        $this->notification($tmpMailSubject,"gitCommand:{$eol}{$execCommand}{$eol}{$eol}gitOutput:{$eol}{$gitReport}{$eol}Server Output:{$eol}".print_r($_SERVER,true),"TEXT");
 
         return true;
     }
@@ -151,9 +156,11 @@ class Gitwebhook
       // Bitbucket Payload Validation (simple)
       if(isset($_REQUEST['bitbucket_secret'])){
         $payload = json_decode(file_get_contents('php://input'),true);
-        $event = @$_SERVER['X-Event-Key'];
-        $delivery = @$_SERVER['X-Request-UUID'];
-        $attemptNumber = @$_SERVER['X-Attempt-Number'];
+        $event = @$_SERVER['HTTP_X_EVENT_KEY'];
+        $delivery = @$_SERVER['HTTP_X_REQUEST_UUID'];
+        $attemptNumber = @$_SERVER['HTTP_X_ATTEMPT_NUMBER'];
+        // X-Attempt-Number
+        // HTTP_X_ATTEMPT_NUMBER
         
         if($_REQUEST["bitbucket_secret"] != $this->secret){
           $this->notification("Error: Not compliant secrets","Please make sure the secret key is equal on both sides (Your Server & Bitbucket).");

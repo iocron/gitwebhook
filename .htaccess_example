@@ -1,11 +1,7 @@
 DirectoryIndex index.php
 
-<Files config.json>
-Order Allow,Deny
-Deny from all
-</Files>
-
-# For Bitbucket Users - Uncomment this block:
+# For Bitbucket Users - Uncomment this block for additional security:
+# (Info: The webhook requests inspection in the bitbucket backend might not work correctly after this)
 # <Limit GET POST>
 #    order deny,allow
 #    deny from all

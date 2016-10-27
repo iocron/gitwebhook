@@ -14,18 +14,18 @@ Thumbs.db
 
 # Logs
 /logs/*
-!/logs/.gitkeep
+!/logs/.htaccess
 
 # Configs
-/config.json
-/config_*.json
-!/config_example.json
+config.json
+config_*.json
+!config_example.json
 
 # IDE Specific Files
 .ftpconfig
 
-# Exclude .htaccess
-.htaccess
+# Exclude .htaccess in root folder
+/.htaccess
 
 # Never exclude .gitkeep files
 !.gitkeep
