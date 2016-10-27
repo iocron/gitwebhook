@@ -35,10 +35,11 @@ class Gitwebhook
     
     // SETTER, HELPER & VALIDATORS
     public function notification($subject,$message){
-        if($this->mail != "false" && $this->mail != ""){
-            $subjectWithInsertTag = str_replace('{{subject}}',$subject,$this->mailSubject);
-            mail($this->mail,$subjectWithInsertTag,$message);
-        }
+      echo $subject;
+      if($this->mail != "false" && $this->mail != ""){
+          $subjectWithInsertTag = str_replace('{{subject}}',$subject,$this->mailSubject);
+          mail($this->mail,$subjectWithInsertTag,$message);
+      }
     }
 
     public function handle(){
