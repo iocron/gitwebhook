@@ -134,7 +134,7 @@ class Gitwebhook
           $this->notification("Error: Payload is empty.","Something went really wrong about your payload (empty).");
           return false;
         }
-        if(!isset($payload->repository->name, $payload->push->changes)){
+        if(!isset($payload["repository"]["name"], $payload["push"]["changes"])){
           $this->notification("Error: Invalid Payload Data received.","Your payload data isn't valid.\nPayload Data:\n".print_r($payload,true));
           return false;
         }
@@ -192,7 +192,7 @@ class Gitwebhook
     protected function validateConfig($config){      
       // Allocate the right gitwebhook config according to the right repo
       $payloadData = json_decode(file_get_contents('php://input'),true);
-      $payloadDataRepoFullname = print_r($payloadData->repository->full_name,true);
+      $payloadDataRepoFullname = print_r($payloadData["repository"]["full_name"],true);
       $configPick = false;
       
       foreach($config as $conf){

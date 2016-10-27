@@ -1,5 +1,5 @@
 {
-	"gitwebhook": {
+	"example.com": {
 		"git_repository":"git@github.com:<username>/<repository>",
 		"git_branch":"master",
 		"git_secret":"XXXXXXXX",
