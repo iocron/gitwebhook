@@ -4,7 +4,7 @@
   
   // Config / Default Settings
   if(file_exists(__DIR__."/configs/config.json")){
-    $config = json_decode(file_get_contents(__DIR__."/config.json"),true);
+    $config = json_decode(file_get_contents(__DIR__."/configs/config.json"),true);
     
     if(empty($config)){
       $errMsg = "[ERROR]: The Gitwebhook Config File (".__DIR__."/configs/config.json) is not valid or is corrupted.";
