@@ -64,7 +64,7 @@ class Gitwebhook
     // SETTER, HELPER & VALIDATORS
     public function notification($subject,$message,$mode="ERROR"){      
       if($this->debug && $mode == "ERROR"){
-        file_put_contents(__DIR__."/logs/error_log_".date("Y-m-d-His").".log","{$subject}: {$message}\n\nConfig Data:\n".print_r($this->config,true)."\n\n"."Server Data:\n".$_SERVER);
+        file_put_contents(__DIR__."/logs/error_log_".date("Y-m-d-His").".log","{$subject}: {$message}\n\nConfig Data:\n".print_r($this->config,true)."\n\n"."Server Data:\n".print_r($_SERVER,true));
       }
       
       if($this->mail != "false" && $this->mail != ""){
@@ -77,12 +77,6 @@ class Gitwebhook
 
     public function handle(){
         $eol = PHP_EOL;
-        
-        // Validation Check
-        if (!$this->validateInit(false)) {
-            $this->notification("Error: Git handle validation check failed","Server Output:{$eol}".print_r($_SERVER,true));
-            return false;
-        }
         
         // Set Identity Variables of the current Linux User and Group of the running script
         $currentUser = exec('whoami'); // $currentGroup = exec("id -Gn {$currentUser}");
