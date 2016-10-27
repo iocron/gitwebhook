@@ -125,7 +125,7 @@ class Gitwebhook
         $lockNum = intval($lockFileContent);
         
         // Reset Lock after 15 Minutes
-        if(time() - filemtime($lockFile) > 900){
+        if(file_exists($lockFile) && time() - filemtime($lockFile) > 900){
           file_put_contents($lockFile, "0", LOCK_EX);
         }
         
@@ -140,7 +140,7 @@ class Gitwebhook
         return true;
       } else {
         if($lock){
-          // Write new Lock Number
+          // Write new Lock with Lock Number
           file_put_contents($lockFile, print_r(($lockNum+1),true), LOCK_EX);
         }
         return false;
