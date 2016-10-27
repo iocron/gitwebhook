@@ -21,11 +21,8 @@
   $webhook = new Gitwebhook($config);
   $webhookData = $webhook->getData();
   $validate = $webhook->validateInit();
-  $eol = PHP_EOL;
   
   if($validate){
     $webhook->handle();
-  } else {
-    $webhook->notification("Error: Secret (or Payload) Validation Failed","Server Output:{$eol}".print_r($_SERVER,true)."{$eol}{$eol}Webhook Data:{$eol}".print_r($webhookData,true));
   }
 ?>

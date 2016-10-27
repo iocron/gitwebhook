@@ -90,19 +90,28 @@ class Gitwebhook
     public function validateInit($lock=true){
       $validate = $this->validate();
       
+      if($lock){
+        $lockFile = file_exists(__DIR__."/.lock_gitwebhook") ? __DIR__."/.lock_gitwebhook" : false;
+        $lockFileContent = $lockFile ? file_get_contents($lockFile) : "0";
+        $lockNum = intval($lockFileContent);
+        
+        // Reset Lock after 15 Minutes
+        if(time() - filemtime($lockFile) > 900){
+          file_put_contents($lockFile, "0");
+        }
+        
+        // Set Lock after 10 failed validations (for 15 Minutes) and set validate false
+        if($lockNum >= 10){
+          return false;
+        }
+      }
+      
       if($validate){
         return true;
       } else {
         if($lock){
-          $lockFile = file_exists(__DIR__."/.lock_gitwebhook") ? __DIR__."/.lock_gitwebhook" : false;
-          $lockFileContent = $lockFile ? file_get_contents($lockFile) : "0";
-          $lockNum = intval($lockFileContent);
-          
-          if(time() - filemtime($lockFile) > 20160){
-            unlink($lockFile);
-          }
-          
-          file_put_contents($lockFile, print_r($lockNum+1,true));
+          // Write new Lock Number
+          file_put_contents($lockFile, print_r(($lockNum+1),true));
         }
         
         return false;
@@ -112,8 +121,10 @@ class Gitwebhook
     public function validate(){
       // Bitbucket Payload Validation (simple)
       if(isset($_REQUEST['bitbucket_secret'])){
+        $payload = json_decode(file_get_contents('php://input'),true);
+        $event = @$_SERVER['X-Event-Key'];
+        $delivery = @$_SERVER['X-Request-UUID'];
         $attemptNumber = @$_SERVER['X-Attempt-Number'];
-        $payload = json_decode(file_get_contents('php://input'));
         
         if($_REQUEST["bitbucket_secret"] != $this->secret){
           $this->notification("Error: Not compliant secrets","Please make sure the secret key is equal on both sides (Your Server & Bitbucket).");
@@ -124,16 +135,20 @@ class Gitwebhook
           return false;
         }
         if(!isset($payload->repository->name, $payload->push->changes)){
-          $this->notification("Error: Invalid Payload Data received.","Your payload data isn't valid.\nPayload Data:\n".$payload);
+          $this->notification("Error: Invalid Payload Data received.","Your payload data isn't valid.\nPayload Data:\n".print_r($payload,true));
           return false;
         }
         if(!isset($attemptNumber)){
-          $this->notification("Error: Invalid Payload Data received (attemptNumber).","Your payload data isn't valid.\nPayload Data:\n".$payload);
+          $this->notification("Error: Invalid Payload Data received (attemptNumber).","Your payload data isn't valid.\nPayload Data:\n".print_r($payload,true));
           return false;
         } else if($attemptNumber>1){
           echo "The Git Execution is still in progress (this is the #{$attemptNumber} attempt), please wait..";
           return false;
         }
+        
+        $this->data = $payload;
+        $this->event = $event;
+        $this->delivery = $delivery;
         
         return true;
       }
@@ -143,16 +158,19 @@ class Gitwebhook
       $event = @$_SERVER['HTTP_X_GITHUB_EVENT'];
       $delivery = @$_SERVER['HTTP_X_GITHUB_DELIVERY'];
       $payload = file_get_contents('php://input');
+      $payloadData = json_decode($payload,true);
 
       if (!isset($signature, $event, $delivery)) {
+          $this->notification("Error: Signature, Event or Delivery (Header) is not set.","Server Output:\n".print_r($_SERVER,true)."\n\nWebhook Data:\n".print_r($payloadData,true));
           return false;
       }
 
       if (!$this->validateSignature($signature, $payload)) {
+          $this->notification("Error: Secret (or Payload) Validation Failed","Server Output:\n".print_r($_SERVER,true)."\n\nWebhook Data:\n".print_r($payloadData,true));
           return false;
       }
 
-      $this->data = json_decode($payload,true);
+      $this->data = $payloadData;
       $this->event = $event;
       $this->delivery = $delivery;
       return true;
@@ -173,8 +191,8 @@ class Gitwebhook
     
     protected function validateConfig($config){      
       // Allocate the right gitwebhook config according to the right repo
-      $payloadData = json_decode(file_get_contents('php://input'));
-      $payloadDataRepoFullname = $payloadData->repository->full_name;
+      $payloadData = json_decode(file_get_contents('php://input'),true);
+      $payloadDataRepoFullname = print_r($payloadData->repository->full_name,true);
       $configPick = false;
       
       foreach($config as $conf){
