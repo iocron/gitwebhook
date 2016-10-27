@@ -120,13 +120,13 @@ class Gitwebhook
       
       // Lock Validation (Security)
       if($lock){
-        $lockFile = file_exists(__DIR__."/../tmp/lock_gitwebhook") ? __DIR__."/../tmp/lock_gitwebhook" : false;
-        $lockFileContent = $lockFile ? file_get_contents($lockFile) : "0";
+        $lockFile = __DIR__."/../tmp/lock_gitwebhook";
+        $lockFileContent = file_exists($lockFile) ? file_get_contents($lockFile) : "0";
         $lockNum = intval($lockFileContent);
         
         // Reset Lock after 15 Minutes
         if(time() - filemtime($lockFile) > 900){
-          file_put_contents($lockFile, "0");
+          file_put_contents($lockFile, "0", LOCK_EX);
         }
         
         // Set Lock if lockNum (lock attempts) is 10 or higher (for 15 Minutes) and set validate false
@@ -141,7 +141,7 @@ class Gitwebhook
       } else {
         if($lock){
           // Write new Lock Number
-          file_put_contents($lockFile, print_r(($lockNum+1),true));
+          file_put_contents($lockFile, print_r(($lockNum+1),true), LOCK_EX);
         }
         return false;
       }
