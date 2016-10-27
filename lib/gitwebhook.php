@@ -1,6 +1,7 @@
 <?php
 class Gitwebhook
 {
+    private $config;
     private $secret;
     private $repository,$branch;
     private $gitDir;
@@ -13,18 +14,17 @@ class Gitwebhook
     private $valid;
 
     public function __construct($config){
-      $conf = $this->validateConfig($config);
-      $this->repository = $this->getConfigVar($conf["git_repository"]);
-      $this->branch = $this->getConfigVar($conf["git_branch"]);
-      $this->secret = $this->getConfigVar($conf["git_secret"]);
-      $this->gitDir = $this->getConfigVar($conf["deployDir"]);
-      $this->mail = $this->getConfigVar($conf["mail"]);
-      $this->mailSubject = $this->getConfigVar($conf["mailSubject"]);
-      $this->linuxUser = $this->getConfigVar($conf["linux_user"] );
+      $this->config = $this->getConfig($config);
+      $this->repository = $this->getConfigVar("git_repository");
+      $this->branch = $this->getConfigVar("git_branch");
+      $this->secret = $this->getConfigVar("git_secret");
+      $this->gitDir = $this->getConfigVar("deployDir");
+      $this->mail = $this->getConfigVar("mail");
+      $this->mailSubject = $this->getConfigVar("mailSubject");
+      $this->linuxUser = $this->getConfigVar("linux_user");
     }
 
     // GETTER
-    protected function getConfigVar($var){ return !empty($var) ? escapeshellarg($var) : ""; }
     public function getData(){ return $this->data; }
     public function getDelivery(){ return $this->delivery; }
     public function getEvent(){ return $this->event; }
@@ -32,6 +32,29 @@ class Gitwebhook
     public function getGitOutput(){ return $this->gitOutput; }
     public function getRepository(){ return $this->repository; }
     public function getSecret(){ return $this->secret; }
+    
+    protected function getConfigVar($name){ return !empty($this->config[$name]) ? escapeshellarg($this->config[$name]) : ""; }
+    protected function getConfig($config){      
+      // Allocate the right gitwebhook config according to the right repo
+      $payloadData = json_decode(file_get_contents('php://input'),true);
+      $payloadDataRepoFullname = print_r($payloadData["repository"]["full_name"],true);
+      $configPick = false;
+      
+      foreach($config as $conf){
+        if(stristr($conf["git_repository"],$payloadDataRepoFullname)){
+          $configPick = $conf;
+          break;
+        }
+      }
+      
+      if($configPick == false){
+        $errMsg = "[ERROR]: Gitwebhook: Your repository ".htmlspecialchars($payloadDataRepoFullname,ENT_QUOTES,'utf-8')." didn't match any of the config repository entries.";
+        if(ini_get('display_errors') != "1") echo "{$errMsg}";
+        throw new Exception("{$errMsg}");
+      } else {
+        return $configPick;
+      }
+    }
     
     // SETTER, HELPER & VALIDATORS
     public function notification($subject,$message){
@@ -188,27 +211,5 @@ class Gitwebhook
 
       $payloadHash = hash_hmac($algo, $payload, $this->secret);
       return ($payloadHash === $gitHubSignature);
-    }
-    
-    protected function validateConfig($config){      
-      // Allocate the right gitwebhook config according to the right repo
-      $payloadData = json_decode(file_get_contents('php://input'),true);
-      $payloadDataRepoFullname = print_r($payloadData["repository"]["full_name"],true);
-      $configPick = false;
-      
-      foreach($config as $conf){
-        if(stristr($conf["git_repository"],$payloadDataRepoFullname)){
-          $configPick = $conf;
-          break;
-        }
-      }
-      
-      if($configPick == false){
-        $errMsg = "[ERROR]: Gitwebhook: Your repository ".htmlspecialchars($payloadDataRepoFullname,ENT_QUOTES,'utf-8')." didn't match any of the config repository entries.";
-        if(ini_get('display_errors') != "1") echo "{$errMsg}";
-        throw new Exception("{$errMsg}");
-      } else {
-        return $configPick;
-      }
     }
 }
