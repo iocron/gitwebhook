@@ -64,7 +64,7 @@ class Gitwebhook
     // SETTER, HELPER & VALIDATORS
     public function notification($subject,$message,$mode="ERROR"){      
       if($this->debug && $mode == "ERROR"){
-        file_put_contents(__DIR__."/../logs/error_log_".date("Y-m-d-His").".log","{$subject}: {$message}\n\nConfig Data:\n".print_r($this->config,true)."\n\n"."Server Data:\n".print_r($_SERVER,true));
+        file_put_contents(__DIR__."/../logs/error_log_".date("Y-m-d-His").".log","{$subject}: {$message}\n\nConfig Data:\n".print_r($this->config,true)."\n"."Server Data:\n".print_r($_SERVER,true));
       }
       
       if($this->mail != "false" && $this->mail != ""){
@@ -118,6 +118,7 @@ class Gitwebhook
     public function validateInit($lock=true){
       $validate = $this->validate();
       
+      // Lock Validation (Security)
       if($lock){
         $lockFile = file_exists(__DIR__."/../tmp/lock_gitwebhook") ? __DIR__."/../tmp/lock_gitwebhook" : false;
         $lockFileContent = $lockFile ? file_get_contents($lockFile) : "0";
@@ -128,12 +129,13 @@ class Gitwebhook
           file_put_contents($lockFile, "0");
         }
         
-        // Set Lock after 10 failed validations (for 15 Minutes) and set validate false
+        // Set Lock if lockNum (lock attempts) is 10 or higher (for 15 Minutes) and set validate false
         if($lockNum >= 10){
           return false;
         }
       }
       
+      // Regular Validation
       if($validate){
         return true;
       } else {
@@ -141,7 +143,6 @@ class Gitwebhook
           // Write new Lock Number
           file_put_contents($lockFile, print_r(($lockNum+1),true));
         }
-        
         return false;
       }
     }

@@ -16,6 +16,11 @@ Thumbs.db
 /logs/*
 !/logs/.htaccess
 
+# Temp Files
+/tmp/*
+!/tmp/.gitkeep
+!/tmp/.htaccess
+
 # Configs
 config.json
 config_*.json
