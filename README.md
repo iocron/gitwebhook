@@ -26,15 +26,15 @@ Use the following steps to set up a new gitwebhook on your github (or bitbucket)
 1. Go to the directory where you want to install the gitwebhook (has to be accessible from outside / the web)
    ```
    cd <yourWebsiteFolder>
-   ``` 
-   
+   ```
+
    *(e.g. /var/www/example.com/httpdocs/)*
 2. Clone the gitwebhook
 
    ```
    git clone https://github.com/iocron/gitwebhook.git && cd gitwebhook
    ```
-   
+
 3. Copy configuration file and htaccess so you can use them:
 
    ```
@@ -46,55 +46,55 @@ Use the following steps to set up a new gitwebhook on your github (or bitbucket)
 
    ```
    vim configs/config.json
-   ``` 
-   
+   ```
+
 ### Setup a SSH-Keygen & Deploy Key on your Server (Third Step)
 1. Generate a SSH-Key first:
 
    ```
    ssh-keygen -t rsa -b 4096 -C "your_email@example.com"
    ```
-   
+
    Further reading: [Github - Generate a new SSH Key](https://help.github.com/articles/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent/)
 
    *(Note: When you do the setup for another user as admin / root, then save the key to /var/www/\<domain\>/.ssh/id_rsa instead and chown the rights to the webuser)*
 
-2. Copy the public key and add it to Github / Bitbucket as the Deploy Key 
+2. Copy the public key and add it to Github / Bitbucket as the Deploy Key
 
    ```
    cat ~/.ssh/id_rsa.pub
    ```
-   
+
    *(Note: When you do the setup for another user as admin / root, then use: cat /var/www/\<domain\>/.ssh/id_rsa.pub instead)*
 
    Further Reading:<br>
    [Github - Setup deploy key](https://developer.github.com/guides/managing-deploy-keys/#setup-2)<br>
    [Bitbucket - Setup deploy key](https://confluence.atlassian.com/bitbucket/use-deployment-keys-294486051.html)
-   
+
 ### Setup a Host Key on your Server & Test the Connection (Fourth Step)
 
-1. Add the Github & Bitbucket Host Key to your Known Hosts (if not already done): 
+1. Add the Github & Bitbucket Host Key to your Known Hosts (if not already done):
 
    ```
    ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts && ssh-keyscan -t rsa bitbucket.org >> ~/.ssh/known_hosts
    ```
-   
+
    *(Note: When you do the setup for another user as admin / root, then use the following example (adjust the paths to your needs): `ssh-keyscan -t rsa github.com >> /var/www/example.com/.ssh/known_hosts && ssh-keyscan -t rsa bitbucket >> /var/www/example.com/.ssh/known_hosts && chmod 600 /var/www/example.com/.ssh/known_hosts` instead and chown the rights to the webuser)*
-   
-2. Make a test connection: 
+
+2. Make a test connection:
 
    ```
    ssh -Tv git@github.com
    ```
-   
+
    or
-   
+
    ```
    ssh -Tv git@bitbucket.org
    ```
-   
+
    *(Note: When you do the setup for another user as admin / root, then test with: `su -p -c "ssh -Tv git@github.com" <username>` instead)*
-   
+
 3. Make a test commit to your Github / Bitbucket Repo and see if the deployed repo directory / code on your server has changed as well, have fun.
 
 *Tips:*
@@ -127,3 +127,4 @@ You'll also get all the necessary informations through the notification emails i
 ### Known Issues:
 - Gitwebhook always clones, but never pulls:<br>
   You might have some permission issues and gitwebhook can't access your deployDir folder, please check the permissions of Gitwebhook and your deployDir (both need to have similar access rights through the same webuser) and/or check if the right host key has been added.
+- Sometimes there are problems initializing (cloning) the project for the first time, in this case clone the project manually and let gitwebhook handle the pulls only
