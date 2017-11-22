@@ -31,20 +31,20 @@ class Gitwebhook
     public function getGitOutput(){ return $this->gitOutput; }
     public function getRepository(){ return $this->repository; }
     public function getSecret(){ return $this->secret; }
-    
+
     protected function getConfigVar($name,$mode="text"){
       if(!isset($this->config[$name]) || empty($this->config[$name])) return "";
       if($mode == "text") return $this->config[$name];
       if($mode == "shell") return escapeshellarg($this->config[$name]);
       return "";
     }
-    
-    protected function getConfig($config){      
+
+    protected function getConfig($config){
       // Allocate the right gitwebhook config according to the right repo
       $payloadData = json_decode(file_get_contents('php://input'),true);
       $payloadDataRepoFullname = print_r($payloadData["repository"]["full_name"],true);
       $configPick = false;
-      
+
       foreach($config as $key => $conf){
         if(stristr($conf["git_repository"],$payloadDataRepoFullname)){
           $this->configName = str_replace(array("..","/"," "),array("","",""),$key);
@@ -52,7 +52,7 @@ class Gitwebhook
           break;
         }
       }
-      
+
       if($configPick == false){
         $errMsg = "[ERROR]: Gitwebhook: Your repository ".htmlspecialchars($payloadDataRepoFullname,ENT_QUOTES,'utf-8')." didn't match any of the config repository entries.";
         if(ini_get('display_errors') != "1") echo "{$errMsg}";
@@ -61,24 +61,24 @@ class Gitwebhook
         return $configPick;
       }
     }
-    
+
     // SETTER, HELPER & VALIDATORS
-    public function notification($subject,$message,$mode="ERROR"){      
+    public function notification($subject,$message,$mode="ERROR"){
       if($this->debug && $mode == "ERROR"){
         file_put_contents(__DIR__."/../logs/{$this->configName}_error_log_".date("Y-m-d-His").".log","{$subject}: {$message}\n\nConfig Data:\n".print_r($this->config,true)."\n"."Server Data:\n".print_r($_SERVER,true));
       }
-      
+
       if($this->mail != "false" && $this->mail != ""){
           $subjectWithInsertTag = str_replace('{{subject}}',$subject,$this->mailSubject);
           $messagePrefix = "Repository: {$this->repository}\n";
-          
+
           mail($this->mail,$subjectWithInsertTag,$messagePrefix.$message);
       }
     }
 
     public function handle(){
         $eol = PHP_EOL;
-        
+
         // Set Identity Variables of the current Linux User and Group of the running script
         $currentUser = exec('whoami'); // $currentGroup = exec("id -Gn {$currentUser}");
 
@@ -86,7 +86,7 @@ class Gitwebhook
         $tmpDeployDir = escapeshellarg($this->deployDir);
         $tmpBranch = escapeshellarg($this->branch);
         $tmpRepository = escapeshellarg($this->repository);
-        
+
         if(file_exists("{$this->deployDir}/.git")){
           $execCommand = "( cd {$tmpDeployDir} && git checkout {$tmpBranch} && git pull -f )";
           $tmpMailSubject = "Successful: Git pull executed";
@@ -94,17 +94,17 @@ class Gitwebhook
           $execCommand = "( cd {$tmpDeployDir} && git clone {$tmpRepository} . && git checkout {$tmpBranch} )";
           $tmpMailSubject = "Successful: Git clone executed";
         }
-        
+
         // Setup execCommand as another Linux User if a Linux User is defined in the Config
         if(!empty($this->linuxUser) && $currentUser != $this->linuxUser){
           $execCommand = "su -c '{$execCommand}' 2>&1 {$this->linuxUser}";
         } else {
           $execCommand = "{$execCommand} 2>&1";
         }
-        
+
         // Execute Git Pull / Clone Commands
         exec($execCommand,$this->gitOutput);
-        
+
         // Generate Git Report
         $gitReport = $this->gitOutput;
         if(is_array($this->gitOutput)){
@@ -113,35 +113,35 @@ class Gitwebhook
                 $gitReport .= $oVal."\n";
             }
         }
-        
+
         // Send Notification about the Git Deployment (Git Report)
         $this->notification($tmpMailSubject,"gitCommand:{$eol}{$execCommand}{$eol}{$eol}gitOutput:{$eol}{$gitReport}{$eol}Server Output:{$eol}".print_r($_SERVER,true),"TEXT");
 
         return true;
     }
-    
+
     public function validateInit($lock=true){
       $validate = $this->validate();
-      
+
       // Lock Validation (Security)
       if($lock){
         $lockFile = __DIR__."/../tmp/lock_gitwebhook";
         $lockFileContent = file_exists($lockFile) ? file_get_contents($lockFile) : "0";
         $lockNum = intval($lockFileContent);
-        
+
         // Reset Lock after 15 Minutes
         if(file_exists($lockFile) && time() - filemtime($lockFile) > 900){
           file_put_contents($lockFile, "0", LOCK_EX);
           $lockNum = 0;
         }
-        
+
         // Set Lockdown if lockNum (lock attempts) is 10 or higher (for 15 Minutes) and set validate false
         if($lockNum >= 10){
           $this->notification("Error: Too many errors / wrong attempts in a short time","Gitwebhook has reached too many errors / wrong attempts in a short time. This can be caused by a misconfiguration of the gitwebhook, access rights on your server, or even a suspicious process might be running. Please check your error emails or your error logs. The lock will be suspended after 15 Minutes and you can try again.");
           return false;
         }
       }
-      
+
       // Regular Validation
       if($validate){
         return true;
@@ -163,9 +163,9 @@ class Gitwebhook
         $attemptNumber = @$_SERVER['HTTP_X_ATTEMPT_NUMBER'];
         // X-Attempt-Number
         // HTTP_X_ATTEMPT_NUMBER
-        
+
         if($_REQUEST["bitbucket_secret"] != $this->secret){
-          $this->notification("Error: Not compliant secrets","Please make sure the secret key is equal on both sides (Your Server & Bitbucket).");
+          $this->notification("Error: Not compliant secrets","Please make sure the secret key is equal on both sides (Your Server & Bitbucket). \nBitbucket Secret is ".htmlspecialchars($_REQUEST["bitbucket_secret"])."\nJSON Config Secret is {$this->secret}");
           return false;
         }
         if(empty($payload)){
@@ -183,14 +183,14 @@ class Gitwebhook
           echo "The Git Execution is still in progress (this is the #{$attemptNumber} attempt), please wait..";
           return false;
         }
-        
+
         $this->data = $payload;
         $this->event = $event;
         $this->delivery = $delivery;
-        
+
         return true;
       }
-      
+
       // Github Payload Validation
       $signature = @$_SERVER['HTTP_X_HUB_SIGNATURE'];
       $event = @$_SERVER['HTTP_X_GITHUB_EVENT'];
@@ -214,7 +214,7 @@ class Gitwebhook
       return true;
     }
 
-    protected function validateSignature($gitHubSignatureHeader, $payload){    
+    protected function validateSignature($gitHubSignatureHeader, $payload){
       // Github Payload Validation
       list ($algo, $gitHubSignature) = explode("=", $gitHubSignatureHeader);
 
