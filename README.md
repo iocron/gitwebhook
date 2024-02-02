@@ -17,9 +17,9 @@ Use the following steps to set up a new gitwebhook on your github (or bitbucket)
 
 1. Go to your Repository and click on "Settings", then click on "Webhooks"
 2. Click on "Add webhook"
-3. Type in the path where you want to install your gitwebhook: https://\<example.com\>/gitwebhook/index.php?bitbucket_secret=\<secret\> (or as subdomain, etc.)
-
-   (replace \<secret\> with a Secret of your choice)
+3. Type in the name of the webhook (your own custom name) in the field "Title"
+4. Type in the path where you want to install your gitwebhook (field "URL"): https://\<example.com\>/gitwebhook/index.php (or as subdomain, etc.)
+5. Add your \<secret\> in the "secret" field (replace \<secret\> with a Secret of your choice)
 
 ### Setup Gitwebhook (Second Step):
 
