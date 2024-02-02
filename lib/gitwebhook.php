@@ -154,8 +154,49 @@ class Gitwebhook
       }
     }
 
-    public function validate(){
-      // Bitbucket Payload Validation (simple)
+    public function validate() {
+      // Bitbucket Payload Validation
+      if(isset(getallheaders()['X-Hub-Signature'])) {
+          $bitbucketSignature = getallheaders()['X-Hub-Signature'];
+          if(!empty($bitbucketSignature)) {
+              $requestContent = file_get_contents('php://input');
+              if(!hash_equals('sha256=' . hash_hmac('sha256', $requestContent, $this->secret), $bitbucketSignature )) {
+                $this->notification("Error: Not compliant secrets","Please make sure the secret key is equal on both sides (Your Server & Bitbucket). \nBitbucket Secret is ".htmlspecialchars($_REQUEST["bitbucket_secret"])."\nJSON Config Secret is {$this->secret}");
+                return false;
+              }
+
+              $payload = json_decode($requestContent, true);
+              $event = @$_SERVER['HTTP_X_EVENT_KEY'];
+              $delivery = @$_SERVER['HTTP_X_REQUEST_UUID'];
+              $attemptNumber = @$_SERVER['HTTP_X_ATTEMPT_NUMBER'];
+              // X-Attempt-Number
+              // HTTP_X_ATTEMPT_NUMBER
+
+              if(empty($payload)){
+                $this->notification("Error: Payload is empty.","Something went really wrong about your payload (empty).");
+                return false;
+              }
+              if(!isset($payload["repository"]["name"], $payload["push"]["changes"])){
+                $this->notification("Error: Invalid Payload Data received.","Your payload data isn't valid.\nPayload Data:\n".print_r($payload,true));
+                return false;
+              }
+              if(!isset($attemptNumber)){
+                $this->notification("Error: Invalid Payload Data received (attemptNumber).","Your payload data isn't valid.\nPayload Data:\n".print_r($payload,true));
+                return false;
+              } else if($attemptNumber>1){
+                echo "The Git Execution is still in progress (this is the #{$attemptNumber} attempt), please wait..";
+                return false;
+              }
+
+              $this->data = $payload;
+              $this->event = $event;
+              $this->delivery = $delivery;
+
+              return true;
+          }
+      }
+
+      // @deprecated Bitbucket Payload Validation (simple - fallback)
       if(isset($_REQUEST['bitbucket_secret'])){
         $payload = json_decode(file_get_contents('php://input'),true);
         $event = @$_SERVER['HTTP_X_EVENT_KEY'];
